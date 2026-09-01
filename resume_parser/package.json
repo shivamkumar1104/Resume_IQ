@@ -1,0 +1,16 @@
+{
+  "name": "resume-intelligence",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:api": "npm --workspace apps/api run start:dev",
+    "dev:worker": "npm --workspace apps/worker run dev",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}
