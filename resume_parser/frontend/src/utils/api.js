@@ -1,5 +1,6 @@
 // API client for Resume Intelligence Platform backend
-const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+const rawBaseUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+export const BASE_URL = rawBaseUrl.replace(/\/+$/, "")
 
 export async function screenResume(file, jobDescription) {
   const formData = new FormData()

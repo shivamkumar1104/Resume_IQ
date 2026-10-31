@@ -1,10 +1,12 @@
 """FastAPI Main Server - Resume Intelligence Platform v3.0"""
 
 import time
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 import sys
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
@@ -19,26 +21,6 @@ from app.services.optimizer import ResumeOptimizer
 from app.services.ats_engine import ATSEngine
 from app.schemas.screening import ScreeningResult
 
-app = FastAPI(
-    title="Resume Intelligence Platform",
-    description="Enterprise-grade AI candidate screening: universal skill intelligence, ATS diagnostics, explainable scoring, and company template engine.",
-    version="3.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
-)
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-    "http://localhost:3000",
-    "http://localhost:5173",
-],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Initialize AI engines
 skill_engine = UniversalSkillEngine()
 semantic_engine = SemanticEngine()
@@ -48,9 +30,54 @@ optimizer = ResumeOptimizer()
 ats_engine = ATSEngine()
 
 
-@app.on_event("startup")
-def startup_event():
-    semantic_engine.load_model()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        semantic_engine.load_model()
+    except Exception as e:
+        print(f"Warning loading semantic engine: {e}")
+    yield
+
+
+app = FastAPI(
+    title="Resume Intelligence Platform",
+    description="Enterprise-grade AI candidate screening: universal skill intelligence, ATS diagnostics, explainable scoring, and company template engine.",
+    version="3.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    lifespan=lifespan,
+)
+
+# Robust CORS configuration: allows all origins by default or specific comma-separated origins from ENV
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "*")
+if allowed_origins_env.strip() == "*":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "service": "Resume Intelligence Platform API",
+        "version": "3.0.0",
+        "health": "/api/health",
+        "docs": "/api/docs",
+    }
 
 
 @app.get("/api/health")

@@ -49,10 +49,12 @@ export function useScreening() {
       await new Promise(r => setTimeout(r, 400))
       setResult(data)
       setStatus("success")
+      return data
     } catch (err) {
       clearTimeout(timer)
       setError(err.message || "An unexpected error occurred.")
       setStatus("error")
+      return null
     }
   }, [])
 

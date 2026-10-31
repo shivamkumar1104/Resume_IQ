@@ -1,5 +1,6 @@
 """Semantic embedding and similarity calculation engine."""
 
+import os
 import numpy as np
 from typing import Tuple, List, Optional
 from sklearn.metrics.pairwise import cosine_similarity
@@ -20,6 +21,11 @@ class SemanticEngine:
     def load_model(self):
         """Pre-load SentenceTransformer model into memory at server boot."""
         if self._model is None:
+            use_st = os.getenv("USE_SENTENCE_TRANSFORMERS", "true").lower() in ("true", "1", "yes")
+            if not use_st:
+                self._model = "TFIDF_FALLBACK"
+                return
+
             try:
                 from sentence_transformers import SentenceTransformer
                 self._model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")

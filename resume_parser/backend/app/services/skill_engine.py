@@ -80,6 +80,11 @@ class UniversalSkillEngine:
             self.nlp = spacy.load("en_core_web_sm")
         except Exception:
             self.nlp = spacy.blank("en")
+            if "sentencizer" not in self.nlp.pipe_names:
+                try:
+                    self.nlp.add_pipe("sentencizer")
+                except Exception:
+                    pass
             
         self.matcher = PhraseMatcher(self.nlp.vocab, attr="LOWER")
         # Register all known aliases in PhraseMatcher
@@ -104,7 +109,10 @@ class UniversalSkillEngine:
             canonical = ALIAS_TO_CANONICAL.get(span_text, span_text.title())
             
             # Find the enclosing sentence for grounded evidence
-            sentence = doc[start:end].sent.text.strip() if doc[start:end].sent else doc[max(0, start-10):min(len(doc), end+10)].text.strip()
+            try:
+                sentence = doc[start:end].sent.text.strip()
+            except Exception:
+                sentence = doc[max(0, start-10):min(len(doc), end+10)].text.strip()
             
             category = CANONICAL_TAXONOMY.get(canonical, {}).get("category", "General Technical")
             
@@ -117,7 +125,14 @@ class UniversalSkillEngine:
                 }
 
         # 2. Dynamic Unknown Technical Term Discovery via Noun Chunks / Proper Nouns (open-ended)
-        for chunk in doc.noun_chunks:
+        chunks = []
+        if self.nlp.has_pipe("parser"):
+            try:
+                chunks = list(doc.noun_chunks)
+            except Exception:
+                chunks = []
+
+        for chunk in chunks:
             chunk_str = chunk.text.strip()
             chunk_lower = chunk_str.lower()
             # If multi-word capitalized or technical candidate not yet matched
@@ -131,7 +146,10 @@ class UniversalSkillEngine:
                     # Add as open-ended discovered skill
                     candidate_name = chunk_str.title()
                     if candidate_name not in found_skills and len(candidate_name) < 25:
-                        sent_text = chunk.sent.text.strip() if chunk.sent else chunk_str
+                        try:
+                            sent_text = chunk.sent.text.strip()
+                        except Exception:
+                            sent_text = chunk_str
                         found_skills[candidate_name] = {
                             "skill": candidate_name,
                             "category": "Domain Specific / Discovered",

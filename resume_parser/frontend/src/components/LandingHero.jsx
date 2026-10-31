@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { BASE_URL } from "../utils/api.js"
 
 function AnimatedCounter({ target, suffix = "", duration = 2000 }) {
   const [value, setValue] = useState(0)
@@ -78,7 +79,7 @@ export function LandingHero({ onStart }) {
           <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>ResumeIQ</span>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn-secondary" style={{ fontSize: 13, padding: "8px 18px" }}>
+          <button className="btn-secondary" style={{ fontSize: 13, padding: "8px 18px" }} onClick={() => window.open(`${BASE_URL}/api/docs`, "_blank")}>
             API Docs
           </button>
           <button className="btn-primary" style={{ fontSize: 13, padding: "9px 20px" }} onClick={onStart}>
@@ -127,7 +128,7 @@ export function LandingHero({ onStart }) {
           <button className="btn-primary" style={{ fontSize: 16, padding: "16px 40px" }} onClick={onStart}>
             🚀 Analyze a Resume
           </button>
-          <button className="btn-secondary" style={{ fontSize: 15, padding: "15px 30px" }}>
+          <button className="btn-secondary" style={{ fontSize: 15, padding: "15px 30px" }} onClick={() => window.open(`${BASE_URL}/api/docs`, "_blank")}>
             View API Docs
           </button>
         </div>

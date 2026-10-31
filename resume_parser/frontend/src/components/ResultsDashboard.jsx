@@ -246,7 +246,16 @@ export function ResultsDashboard({ result, onReset }) {
   const [activeTab, setActiveTab] = useState("overview")
   if (!result) return null
 
-  const { filename, contact, scores, skills, ats_report, improvements, recommended_templates, processing_time_ms } = result
+  const {
+    filename = "Resume",
+    contact = {},
+    scores = {},
+    skills = {},
+    ats_report = {},
+    improvements = [],
+    recommended_templates = [],
+    processing_time_ms = 0,
+  } = result
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -293,28 +302,28 @@ export function ResultsDashboard({ result, onReset }) {
           <div className="fade-in-up">
             <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 28, alignItems: "start", flexWrap: "wrap" }}>
               <div className="card" style={{ padding: "36px 40px", display: "flex", justifyContent: "center" }}>
-                <ScoreRing score={scores.final_score} size={200} label="Overall Fit Score" />
+                <ScoreRing score={scores.final_score ?? 0} size={200} label="Overall Fit Score" />
               </div>
               <div className="card" style={{ padding: "28px 32px" }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 20 }}>
                   Score Breakdown
                 </div>
-                <MiniScoreBar label="Skill Coverage"        score={scores.skill_coverage}     color="#10b981" delay={0} />
-                <MiniScoreBar label="Experience Match"      score={scores.experience_score}   color="#6366f1" delay={100} />
-                <MiniScoreBar label="Projects Score"        score={scores.projects_score}     color="#8b5cf6" delay={200} />
-                <MiniScoreBar label="Education Score"       score={scores.education_score}    color="#06b6d4" delay={300} />
-                <MiniScoreBar label="Semantic Similarity"   score={scores.semantic_similarity} color="#3b82f6" delay={400} />
-                <MiniScoreBar label="ATS Compliance"        score={scores.ats_score}          color="#f59e0b" delay={500} />
+                <MiniScoreBar label="Skill Coverage"        score={scores.skill_coverage ?? 0}     color="#10b981" delay={0} />
+                <MiniScoreBar label="Experience Match"      score={scores.experience_score ?? 0}   color="#6366f1" delay={100} />
+                <MiniScoreBar label="Projects Score"        score={scores.projects_score ?? 0}     color="#8b5cf6" delay={200} />
+                <MiniScoreBar label="Education Score"       score={scores.education_score ?? 0}    color="#06b6d4" delay={300} />
+                <MiniScoreBar label="Semantic Similarity"   score={scores.semantic_similarity ?? 0} color="#3b82f6" delay={400} />
+                <MiniScoreBar label="ATS Compliance"        score={scores.ats_score ?? ats_report?.overall_score ?? 0} color="#f59e0b" delay={500} />
                 <div style={{ marginTop: 20, padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 10, display: "flex", gap: 24, flexWrap: "wrap" }}>
                   <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                    📅 <strong style={{ color: "var(--text-primary)" }}>{scores.experience_years_detected}y</strong> exp detected
+                    📅 <strong style={{ color: "var(--text-primary)" }}>{scores.experience_years_detected ?? 0}y</strong> exp detected
                   </div>
                   <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                    🔨 <strong style={{ color: "var(--text-primary)" }}>{scores.project_count_detected}</strong> project(s) found
+                    🔨 <strong style={{ color: "var(--text-primary)" }}>{scores.project_count_detected ?? 0}</strong> project(s) found
                   </div>
                   <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
                     🎯 ATS Grade: <strong style={{
-                      color: scores.ats_score >= 80 ? "#10b981" : scores.ats_score >= 65 ? "#f59e0b" : "#f43f5e"
+                      color: (scores.ats_score ?? ats_report?.overall_score ?? 0) >= 80 ? "#10b981" : (scores.ats_score ?? ats_report?.overall_score ?? 0) >= 65 ? "#f59e0b" : "#f43f5e"
                     }}>{ats_report?.grade || "—"}</strong>
                   </div>
                 </div>
