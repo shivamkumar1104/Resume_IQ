@@ -43,8 +43,8 @@ app = FastAPI(
     title="Resume Intelligence Platform",
     description="Enterprise-grade AI candidate screening: universal skill intelligence, ATS diagnostics, explainable scoring, and company template engine.",
     version="3.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    docs_url=None,
+    redoc_url=None,
     lifespan=lifespan,
 )
 
